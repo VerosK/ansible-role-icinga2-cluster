@@ -1,10 +1,6 @@
 # Ansible role icinga-cluster
 
-Ansible role to set-up icinga2 cluster
-
-## Requirements
-
-Certificates stored in `filed` directory
+Ansible role to set-up icinga2 cluster config.
 
 ## Example Playbook
 
