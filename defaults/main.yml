@@ -1,0 +1,17 @@
+
+icinga2_api_cert_path: "/etc/pki/icinga2/{{ ansible_hostname }}.pem"
+icinga2_api_key_path: "/etc/pki/icinga2/{{ ansible_hostname }}.key"
+icinga2_api_ca_path: "/etc/pki/icinga2/ca.pem"
+
+icinga2_nodename: '{{ ansible_nodename }}'
+icinga2_ticketsalt: "42"
+
+icinga2_service: icinga2
+icinga2_zonename: 'error'
+# Am I master node?
+icinga2_cluster_is_master: false
+
+icinga2_cluster_enable_port_5665: false
+
+__icinga2_global_templates:
+   global-templates: ~

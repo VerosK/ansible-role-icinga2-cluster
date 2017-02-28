@@ -1,0 +1,18 @@
+// {{  ansible_managed }}
+
+object ApiListener "api" {
+  cert_path = "{{ icinga2_api_cert_path }}"
+  key_path = "{{ icinga2_api_key_path }}"
+  ca_path = "{{ icinga2_api_ca_path }}"
+
+/* Probably not needed
+ * ticket_salt = "{{  icinga2_ticketsalt }}"
+ */
+{% if icinga2_cluster_is_master %}
+   accept_commands = false
+   accept_config = false
+{% else %}
+   accept_commands = true
+   accept_config = true
+{% endif %}
+}

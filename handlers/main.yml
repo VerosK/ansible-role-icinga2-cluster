@@ -1,0 +1,4 @@
+- name: Reload Icinga2 service
+  service:
+    name: '{{ icinga2_service }}'
+    state: reloaded

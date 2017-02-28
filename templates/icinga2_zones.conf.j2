@@ -1,0 +1,29 @@
+# {{  ansible_managed }}
+
+/*
+ * Create a global zone synced to all nodes,
+ * All remotes need this zone configured too.
+ */
+object Zone "global-templates" {
+  global = true
+}
+
+/* our NodeName is {{ icinga2_nodename }}
+ * our ZoneName is {{ icinga2_zonename }}
+ */
+
+{% for name,config in icinga2_cluster_endpoints.iteritems() %}
+object Endpoint "{{ name }}" {
+  host = "{{ config.address|default(name) }}"
+}
+{% endfor  %}{# Endpoints #}
+
+{% for zone_name,config in icinga2_cluster_zones.iteritems() %}
+object Zone "{{ zone_name }}" {
+  endpoints = {{ config.endpoints|to_json }}
+{% if config.parent|default(False) %}
+    parent = "{{ config.parent }}"
+{% endif %}
+}
+{% endfor %}
+

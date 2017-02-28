@@ -1,0 +1,40 @@
+
+- name: Enable Icinga2 api.conf
+  template:
+    src: icinga2_api.conf.j2
+    dest: /etc/icinga2/features-enabled/api.conf
+    backup: yes
+  notify: Reload Icinga2 service
+
+- name: Update Icinga2 constants.conf
+  template:
+    src: icinga2_constants.conf.j2
+    dest: /etc/icinga2/constants.conf
+    backup: yes
+  notify: Reload Icinga2 service
+
+- name: Update Icinga2 zones.conf
+  template:
+    src: icinga2_zones.conf.j2
+    dest: /etc/icinga2/zones.conf
+    backup: yes
+  notify: Reload Icinga2 service
+
+- name: Create zones.d on master and global-templates too
+  file:
+     path: "/etc/icinga2/zones.d/{{ item.key }}"
+     state: directory
+     owner: icinga
+  with_dict: '{{ icinga2_cluster_zones|combine(__icinga2_global_templates) }}'
+  when: icinga2_cluster_is_master
+
+# TODO: firewall-cmd --add-rich-rule='rule family=ipv4 source address="10.0.0.0/8" port port=5665 protocol=tcp accept' --permanent
+- name: Enable ports 5665
+  firewalld:
+      permanent: yes
+      immediate: yes
+      port: 5665/tcp
+      zone: public
+      state: enabled
+  when: icinga2_cluster_enable_port_5665
+  ignore_errors: yes
