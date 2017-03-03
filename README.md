@@ -11,7 +11,8 @@ Ansible role to set-up icinga2 cluster config.
      icinga2_cluster_endpoints:
           master.example.org: {}
           node-1.example.org: {}
-          node-2.example.org: {}
+          node-2.example.org: 
+              address: "192.168.13.1"     # specify API  address when needed
 
      icinga2_cluster_zones:
             master:
@@ -22,7 +23,8 @@ Ansible role to set-up icinga2 cluster config.
             node-2:
                endpoints: [ 'node-2.example.org' ]
                parent: 'master'
-
+               
+     # name of my icinga
      icinga_cluster_identity: '{{ ansible_hostname }}'
 ```
 
