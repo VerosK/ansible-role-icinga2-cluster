@@ -15,6 +15,7 @@ object Zone "global-templates" {
 {% for name,config in icinga2_cluster_endpoints.iteritems() %}
 object Endpoint "{{ name }}" {
   host = "{{ config.address|default(name) }}"
+  port = {{ config.port|default(5665) }}
 }
 {% endfor  %}{# Endpoints #}
 
