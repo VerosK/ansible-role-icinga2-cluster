@@ -16,7 +16,7 @@ const PluginContribDir = "/usr/lib64/nagios/plugins"
 /* Our local instance name. By default this is the server's hostname as returned by `hostname --fqdn`.
  * This should be the common name from the API certificate.
  */
-const NodeName = "{{ icinga2_nodename }}"
+const NodeName = "{{ icinga2_cluster_identity }}"
 
 /* Our local zone name. */
 const ZoneName = "{{ icinga2_zonename }}"

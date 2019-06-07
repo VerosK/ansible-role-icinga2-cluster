@@ -1,0 +1,84 @@
+
+- name: Check if local cert is present
+  file:
+    dest: '{{ icinga2_api_cert_path }}'
+    state: file
+  ignore_errors: yes
+  register: _icinga2_have_local_cert
+
+- name: Make sure cert-requests directory exists
+  file:
+    dest: '{{ icinga2_api_csr_path|dirname }}'
+    state: directory
+    owner: icinga
+    group: icinga
+    setype: icinga2_var_lib_t
+  when: _icinga2_have_local_cert.failed
+
+- name: Make sure certificates directory exists
+  file:
+    dest: '{{ icinga2_api_cert_path|dirname }}'
+    state: directory
+    owner: icinga
+    group: icinga
+    setype: icinga2_var_lib_t
+  when: _icinga2_have_local_cert.failed
+
+- name: Generate certificate request
+  shell:
+    icinga2 pki new-cert --cn {{ icinga2_cluster_identity }}
+    --key {{ icinga2_api_key_path }}
+    --csr {{ icinga2_api_csr_path }}
+  args:
+    creates: "{{ icinga2_api_key_path }}"
+  when: _icinga2_have_local_cert.failed
+
+- name: Create temporary directory for CSR download
+  tempfile:
+    state: directory
+    suffix: "-icinga2-ca"
+  delegate_to: localhost
+  register: _icinga2_cert_dir
+  become: false
+  when: _icinga2_have_local_cert.failed
+  run_once: yes
+
+- name: Fetch the CSR
+  fetch:
+    src: '{{ icinga2_api_csr_path }}'
+    dest: '{{ _icinga2_cert_dir.path }}/{{ icinga2_cluster_identity }}.csr'
+    flat: true
+  when: _icinga2_have_local_cert.failed
+
+- name: Upload the CSR to the master
+  copy:
+    src: '{{ _icinga2_cert_dir.path }}/{{ icinga2_cluster_identity }}.csr'
+    dest: '{{ icinga2_api_csr_path }}'
+    owner: icinga
+    group: icinga
+  delegate_to: '{{ icinga2_master_host }}'
+  when: _icinga2_have_local_cert.failed
+
+- name: Sign the CSR  on master host
+  shell:
+    icinga2 pki sign-csr
+        --csr {{ icinga2_api_csr_path }} --cert {{ icinga2_api_cert_path }}
+  args:
+    creates: "{{ icinga2_api_cert_path }}"
+  delegate_to: '{{ icinga2_master_host }}'
+
+- name: Fetch signed cert
+  fetch:
+    src: '{{ icinga2_api_cert_path }}'
+    dest: '{{ _icinga2_cert_dir.path }}/{{ icinga2_cluster_identity }}.crt'
+    flat: true
+  delegate_to: '{{ icinga2_master_host }}'
+  when: _icinga2_have_local_cert.failed
+
+- name: Upload the signer cert to the originating
+  copy:
+    src: '{{ _icinga2_cert_dir.path }}/{{ icinga2_cluster_identity }}.crt'
+    dest: '{{ icinga2_api_cert_path }}'
+    owner: icinga
+    group: icinga
+  when: _icinga2_have_local_cert.failed

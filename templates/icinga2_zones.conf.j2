@@ -8,18 +8,18 @@ object Zone "global-templates" {
   global = true
 }
 
-/* our NodeName is {{ icinga2_nodename }}
+/* our NodeName is {{ icinga2_cluster_identity }}
  * our ZoneName is {{ icinga2_zonename }}
  */
 
-{% for name,config in icinga2_cluster_endpoints.iteritems() %}
+{% for name,config in icinga2_cluster_endpoints.items() %}
 object Endpoint "{{ name }}" {
   host = "{{ config.address|default(name) }}"
   port = {{ config.port|default(5665) }}
 }
 {% endfor  %}{# Endpoints #}
 
-{% for zone_name,config in icinga2_cluster_zones.iteritems() %}
+{% for zone_name,config in icinga2_cluster_zones.items() %}
 object Zone "{{ zone_name }}" {
   endpoints = {{ config.endpoints|to_json }}
 {% if config.parent|default(False) %}

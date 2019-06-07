@@ -1,13 +1,13 @@
 # Ansible role icinga-cluster
 
 Ansible role to set-up icinga2 cluster config.
+Requires already setup ansible
 
 ## Example Playbook
 
 ```yaml
 - hosts: icinga2-master,icinga2-satellites
-  roles:
-   - role: icinga2-cluster
+  vars:
      icinga2_cluster_endpoints:
           master.example.org: {}
           node-1.example.org: {}
@@ -26,6 +26,10 @@ Ansible role to set-up icinga2 cluster config.
                
      # name of my icinga
      icinga_cluster_identity: '{{ ansible_hostname }}'
+     
+  roles:
+   - role: icinga2-cluster
+
 ```
 
 ## Role Variables
@@ -38,4 +42,10 @@ BSD 3 || WTFPL
 
 ## Author Information
 
-Veros Kaplan < https://github.com/VerosK/ansible-icinga2-cluster >
+[Veros Kaplan]
+
+Module sponsored by [Moravian Library]
+
+
+[Moravian Library]: http://mzk.cz/
+[Veros Kaplan]: https://github.com/verosk/

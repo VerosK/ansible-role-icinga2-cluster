@@ -1,0 +1,77 @@
+- name: Make sure CA directory exists
+  file:
+    dest: '{{ icinga2_api_ca_cert_path|dirname }}'
+    state: directory
+    owner: icinga
+    group: icinga
+    setype: icinga2_var_lib_t
+  when: icinga2_is_ca_master
+
+
+- name: Make sure certs directory exists
+  file:
+    dest: '{{ icinga2_certs_dir }}'
+    state: directory
+    owner: icinga
+    group: icinga
+    setype: icinga2_var_lib_t
+
+
+- name: Make sure cert-requests directory exists
+  file:
+    dest: '{{ icinga2_api_csr_path|dirname }}'
+    state: directory
+    owner: icinga
+    group: icinga
+    setype: icinga2_var_lib_t
+
+- name: Generate CA key
+  shell: icinga2 pki new-ca
+  args:
+    creates: '{{ icinga2_api_ca_cert_path }}'
+  when: icinga2_is_ca_master
+
+- name: Store CA key
+  copy:
+    src: '{{ icinga2_api_ca_cert_path }}'
+    dest: '{{ icinga2_certs_dir }}/ca.crt'
+    remote_src: yes
+    owner: icinga
+    group: icinga
+  when: icinga2_is_ca_master
+
+- name: Check CA is present
+  file:
+    dest: '{{ icinga2_api_ca_cert_path }}'
+    state: file
+  ignore_errors: yes
+  register: _icinga2_have_ca_cert
+
+
+- name: Create temporary directory for Icinga2 CA cert download
+  tempfile:
+    state: directory
+    suffix: "-icinga2-ca"
+  delegate_to: localhost
+  register: _icinga2_ca_dir
+  become: false
+  when: _icinga2_have_ca_cert.failed
+  run_once: yes
+
+- name: Grab CA cert from master
+  fetch:
+    dest: '{{ _icinga2_ca_dir.path }}/ca.crt'
+    src: '{{ icinga2_api_ca_cert_path }}'
+    flat: true
+  delegate_to: '{{ icinga2_master_host }}'
+  when: _icinga2_have_ca_cert.failed
+  run_once: true
+
+
+- name: Upload CA cert from master
+  copy:
+    src: '{{ _icinga2_ca_dir.path }}/ca.crt'
+    dest: '{{ icinga2_certs_dir }}/ca.crt'
+    owner: icinga
+    group: icinga
+  when: _icinga2_have_ca_cert.failed

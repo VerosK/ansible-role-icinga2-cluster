@@ -1,10 +1,27 @@
 
-icinga2_api_cert_path: "/etc/pki/icinga2/{{ ansible_hostname }}.pem"
-icinga2_api_key_path: "/etc/pki/icinga2/{{ ansible_hostname }}.key"
-icinga2_api_ca_path: "/etc/pki/icinga2/ca.pem"
+# Ansible name of host with CA
+icinga2_master_host: 'icinga-master'
 
-icinga2_nodename: '{{ ansible_nodename }}'
-icinga2_ticketsalt: "42"
+# Should we manage CA certificates?
+icinga2_cluster_manage_certificates: true
+
+# Should this host contain CA certificate?
+icinga2_is_ca_master: false
+
+
+# Icinga CA cert name
+icinga2_cluster_identity: '{{ ansible_nodename }}'
+
+icinga2_certs_dir: "/var/lib/icinga2/certs"
+
+icinga2_api_csr_path: "/var/lib/icinga2/certificate-requests/{{ icinga2_cluster_identity }}.csr"
+icinga2_api_cert_path: "{{ icinga2_certs_dir }}/{{ icinga2_cluster_identity }}.crt"
+icinga2_api_key_path: "{{ icinga2_certs_dir }}/{{ icinga2_cluster_identity }}.key"
+
+icinga2_api_ca_cert_path: "/var/lib/icinga2/ca/ca.crt"
+icinga2_api_ca_key_path: "/var/lib/icinga2/ca/ca.key"
+
+icinga2_ticketsalt: ""
 
 icinga2_service: icinga2
 icinga2_zonename: 'error'
