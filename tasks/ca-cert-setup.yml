@@ -42,7 +42,7 @@
 
 - name: Check CA is present
   file:
-    dest: '{{ icinga2_api_ca_cert_path }}'
+    dest: '{{ icinga2_certs_dir }}/ca.crt'
     state: file
   ignore_errors: yes
   register: _icinga2_have_ca_cert
