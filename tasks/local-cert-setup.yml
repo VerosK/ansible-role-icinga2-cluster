@@ -43,17 +43,26 @@
   when: _icinga2_have_local_cert.failed
   run_once: yes
 
+- set_fact:
+    _icinga2_csr_to_sign: '{{ icinga2_api_csr_path }}'
+    _icinga2_signed_cert: '{{ icinga2_api_cert_path }}'
+
+- set_fact:
+    _icinga2_csr_to_upload: '{{ _icinga2_cert_dir.path }}/{{ icinga2_cluster_identity }}.csr'
+    _icinga2_signed_downloaded: '{{ _icinga2_cert_dir.path }}/{{ icinga2_cluster_identity }}.crt'
+  when: _icinga2_have_local_cert.failed
+
 - name: Fetch the CSR
   fetch:
     src: '{{ icinga2_api_csr_path }}'
-    dest: '{{ _icinga2_cert_dir.path }}/{{ icinga2_cluster_identity }}.csr'
+    dest: '{{ _icinga2_csr_to_upload }}'
     flat: true
   when: _icinga2_have_local_cert.failed
 
 - name: Upload the CSR to the master
   copy:
-    src: '{{ _icinga2_cert_dir.path }}/{{ icinga2_cluster_identity }}.csr'
-    dest: '{{ icinga2_api_csr_path }}'
+    src: '{{ _icinga2_csr_to_upload }}'
+    dest: '{{ _icinga2_csr_to_sign }}'
     owner: icinga
     group: icinga
   delegate_to: '{{ icinga2_master_host }}'
@@ -62,15 +71,13 @@
 - name: Sign the CSR  on master host
   shell:
     icinga2 pki sign-csr
-        --csr {{ icinga2_api_csr_path }} --cert {{ icinga2_api_cert_path }}
-  args:
-    creates: "{{ icinga2_api_cert_path }}"
+        --csr {{ _icinga2_csr_to_sign }} --cert {{ _icinga2_signed_cert }}
   delegate_to: '{{ icinga2_master_host }}'
 
 - name: Fetch signed cert
   fetch:
-    src: '{{ icinga2_api_cert_path }}'
-    dest: '{{ _icinga2_cert_dir.path }}/{{ icinga2_cluster_identity }}.crt'
+    src: '{{ _icinga2_signed_cert }}'
+    dest: '{{ _icinga2_signed_downloaded }}'
     flat: true
   delegate_to: '{{ icinga2_master_host }}'
   when: _icinga2_have_local_cert.failed
