@@ -72,6 +72,8 @@
   shell:
     icinga2 pki sign-csr
         --csr {{ _icinga2_csr_to_sign }} --cert {{ _icinga2_signed_cert }}
+  args:
+     creates: "{{ _icinga2_signed_cert }}"
   delegate_to: '{{ icinga2_master_host }}'
 
 - name: Fetch signed cert
