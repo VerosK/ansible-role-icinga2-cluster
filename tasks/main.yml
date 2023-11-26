@@ -1,9 +1,9 @@
 - name: Make sure CA certificate is present
-  include: ca-cert-setup.yml
+  include_tasks: ca-cert-setup.yml
   when: icinga2_cluster_manage_certificates
 
 - name: Make sure local certificate is present
-  include: local-cert-setup.yml
+  include_tasks: local-cert-setup.yml
   when: icinga2_cluster_manage_certificates
 
 - name: Enable Icinga2 api.conf
