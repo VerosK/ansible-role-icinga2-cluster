@@ -1,7 +1,13 @@
 # {{  ansible_managed }}
 
-/* The directory which contains the plugins from the Monitoring Plugins project. */
+{% if ansible_os_family == "RedHat" %}
+/* RedHat: The directory which contains the plugins from the Monitoring Plugins project. */
 const PluginDir = "/usr/lib64/nagios/plugins"
+
+{% else %}
+/* Debian: The directory which contains the plugins from the Monitoring Plugins project. */
+const PluginDir = "/usr/lib/nagios/plugins"
+{% endif %}
 
 /* The directory which contains the Manubulon plugins.
  * Check the documentation, chapter "SNMP Manubulon Plugin Check Commands", for details.
