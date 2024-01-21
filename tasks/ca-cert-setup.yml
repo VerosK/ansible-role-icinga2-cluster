@@ -2,8 +2,8 @@
   file:
     dest: '{{ icinga2_api_ca_cert_path|dirname }}'
     state: directory
-    owner: icinga
-    group: icinga
+    owner: '{{ icinga2_user }}'
+    group: '{{ icinga2_group }}'
     setype: icinga2_var_lib_t
   when: icinga2_is_ca_master
 
@@ -12,8 +12,8 @@
   file:
     dest: '{{ icinga2_certs_dir }}'
     state: directory
-    owner: icinga
-    group: icinga
+    owner: '{{ icinga2_user }}'
+    group: '{{ icinga2_group }}'
     setype: icinga2_var_lib_t
 
 
@@ -21,8 +21,8 @@
   file:
     dest: '{{ icinga2_api_csr_path|dirname }}'
     state: directory
-    owner: icinga
-    group: icinga
+    owner: '{{ icinga2_user }}'
+    group: '{{ icinga2_group }}'
     setype: icinga2_var_lib_t
 
 - name: Generate CA key
@@ -35,9 +35,9 @@
   copy:
     src: '{{ icinga2_api_ca_cert_path }}'
     dest: '{{ icinga2_certs_dir }}/ca.crt'
+    owner: '{{ icinga2_user }}'
+    group: '{{ icinga2_group }}'
     remote_src: yes
-    owner: icinga
-    group: icinga
   when: icinga2_is_ca_master
 
 - name: Check CA is present
@@ -72,6 +72,6 @@
   copy:
     src: '{{ _icinga2_ca_dir.path }}/ca.crt'
     dest: '{{ icinga2_certs_dir }}/ca.crt'
-    owner: icinga
-    group: icinga
+    owner: '{{ icinga2_user }}'
+    group: '{{ icinga2_group }}'
   when: _icinga2_have_ca_cert.failed

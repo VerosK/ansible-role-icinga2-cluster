@@ -10,8 +10,8 @@
   file:
     dest: '{{ icinga2_api_csr_path|dirname }}'
     state: directory
-    owner: icinga
-    group: icinga
+    owner: '{{ icinga2_user }}'
+    group: '{{ icinga2_group }}'
     setype: icinga2_var_lib_t
   when: _icinga2_have_local_cert.failed
 
@@ -19,8 +19,8 @@
   file:
     dest: '{{ icinga2_api_cert_path|dirname }}'
     state: directory
-    owner: icinga
-    group: icinga
+    owner: '{{ icinga2_user }}'
+    group: '{{ icinga2_group }}'
     setype: icinga2_var_lib_t
   when: _icinga2_have_local_cert.failed
 
@@ -63,8 +63,8 @@
   copy:
     src: '{{ _icinga2_csr_to_upload }}'
     dest: '{{ _icinga2_csr_to_sign }}'
-    owner: icinga
-    group: icinga
+    owner: '{{ icinga2_user }}'
+    group: '{{ icinga2_group }}'
   delegate_to: '{{ icinga2_master_host }}'
   when: _icinga2_have_local_cert.failed
 
@@ -88,6 +88,6 @@
   copy:
     src: '{{ _icinga2_cert_dir.path }}/{{ icinga2_cluster_identity }}.crt'
     dest: '{{ icinga2_api_cert_path }}'
-    owner: icinga
-    group: icinga
+    owner: '{{ icinga2_user }}'
+    group: '{{ icinga2_group }}'
   when: _icinga2_have_local_cert.failed
